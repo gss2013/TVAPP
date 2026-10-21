@@ -1,0 +1,37 @@
+name: Sync upstream
+
+on:
+  schedule:
+    # 每天北京时间 04:00 自动同步上游
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add upstream
+        run: |
+          git remote add upstream https://github.com/youhunwl/TVAPP.git
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream
+
+      - name: Merge upstream into main
+        run: |
+          git checkout main
+          git merge upstream/main --no-edit
+
+      - name: Push
+        run: |
+          git push origin main
